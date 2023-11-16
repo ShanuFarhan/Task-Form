@@ -1,0 +1,48 @@
+<div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="form-check" *ngFor="let field of fields">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="{{ field.id }}"
+            [(ngModel)]="field.selected"
+            (change)="updateSelectedFields()"
+            [disabled]="field.fixed"
+          />
+          <label class="form-check-label" for="{{ field.id }}">{{ field.name }}</label>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="{{ 'mandatory-' + field.id }}"
+              name="{{ 'mandatory-' + field.id }}"
+              [(ngModel)]="field.mandatory"
+              value="true"
+            />
+            <label class="form-check-label" for="{{ 'mandatory-' + field.id }}">Mandatory</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="{{'not-mandatory-' + field.id }}"
+              name="{{ 'mandatory-' + field.id }}"
+              [(ngModel)]="field.mandatory"
+              value="false"
+            />
+            <label class="form-check-label" for="{{ 'not-mandatory-' + field.id }}">Not Mandatory</label>
+          </div>
+         </div>
+      </div>
+      <div class="col-md-8">
+        <div class="selected-fields">
+          <div *ngFor="let field of selectedFields">
+            <label>{{ field.name }}</label>
+            <input [type]="field.type" class="form-control" [(ngModel)]="field.value" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
