@@ -1,3 +1,11 @@
+
 .radio-button{
     margin-left: 40px;
+}
+.fields{
+    margin-top: 20px;  
+}
+.form{
+    background-color: whitesmoke;
+    border-radius: 10px;
 }

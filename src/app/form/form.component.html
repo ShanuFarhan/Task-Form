@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-4 fields">
         <div class="form-check" *ngFor="let field of fields">
           <input
             class="form-check-input"
@@ -11,38 +11,115 @@
             [disabled]="field.fixed"
           />
           <label class="form-check-label" for="{{ field.id }}">{{ field.name }}</label>
+          <div *ngIf="field.name === 'Gender' && field.selected">
+            <label>Choose Gender:</label>
+            <div class="form-check" *ngFor="let option of Gender">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="{{field.id }}"
+                  [(ngModel)]="option.selected"
+                  (change)="updateGender()"
+                />
+                <label class="form-check-label" for="{{field.id }}">{{ option.name }}</label>
+              </div>
+          </div>
+          <div *ngIf="field.name === 'Address' && field.selected">
+            <label>Choose:</label>
+            <div class="form-check" *ngFor="let option of  Address">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                id="{{field.id}}"
+                [(ngModel)]="option.selected"
+                (change)="updateAddress()"
+              />
+              <label class="form-check-label" for="{{field.id }}">{{option.name}}</label>
+            </div>
+          </div>
+          <div *ngIf="field.name === 'Siblings' && field.selected">
+            <div class="form-check" *ngFor="let option of Siblings">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                id="{{field.id}}"
+                [(ngModel)]="option.selected"
+                (change)="updateSiblings()"
+              />
+              <label class="form-check-label" for="{{field.id }}">{{option.name}}</label>
+            </div>
+          </div>
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
               type="radio"
-              id="{{ 'mandatory-' + field.id }}"
-              name="{{ 'mandatory-' + field.id }}"
+              id="{{field.id }}"
+              name="{{field.id }}"
               [(ngModel)]="field.mandatory"
               value="true"
             />
-            <label class="form-check-label" for="{{ 'mandatory-' + field.id }}">Mandatory</label>
+            <label class="form-check-label" for="{{field.id }}">Mandatory</label>
           </div>
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
               type="radio"
-              id="{{'not-mandatory-' + field.id }}"
-              name="{{ 'mandatory-' + field.id }}"
+              id="{{field.id }}"
+              name="{{field.id}}"
               [(ngModel)]="field.mandatory"
               value="false"
-            />
-            <label class="form-check-label" for="{{ 'not-mandatory-' + field.id }}">Not Mandatory</label>
+              />
+            <label class="form-check-label" for="{{field.id }}">Not Mandatory</label>
           </div>
          </div>
+         <button class="btn btn-light">Cancel</button>
+         <button class="btn btn-dark">Reset</button>
+
       </div>
-      <div class="col-md-8">
+      <div class="col-md-8 form">
         <div class="selected-fields">
           <div *ngFor="let field of selectedFields">
-            <label>{{ field.name }}</label>
-            <input [type]="field.type" class="form-control" [(ngModel)]="field.value" />
+            <div class="row">
+                <div class="col-md-6">
+                <label>{{ field.name }}</label>
+                <ng-container *ngIf="field.name !== 'Gender' && field.name !== 'Address' && field.name !== 'Siblings'">
+                    <input class="form-control" [(ngModel)]="field.value" [type]="field.type" />
+                  </ng-container>
+                  <ng-container *ngIf="field.name === 'Gender'">
+                    <select class="form-control custom-select" id="inputGroupSelect01">
+                        <option value="" selected>Choose</option>
+                        <option *ngFor="let gender of genderSelected" [value]="gender">{{gender.name}}</option>
+                    </select>
+                  </ng-container>
+                  <ng-container *ngIf="field.name === 'Address'">
+                    <div *ngFor="let address of addressSelected">
+                    <label>{{address.name}} Address</label>
+                    <input [id]="address.id"  class="form-control" [(ngModel)]="address.value" [type]="field.type" />
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="field.name === 'Siblings'">
+                    <div *ngFor="let sibling of siblingSelected">
+                    <label>Enter number of {{sibling.name}} Siblings</label>
+                    <input *ngIf="sibling.name==='Male'" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="Malecount" />
+                    <input *ngIf="sibling.name==='Female'" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="FemaleCount" />
+                    <!-- <button  (click)="generateInputFields()">Generate Fields</button> -->
+                  </div>
+                  <div *ngFor="let fieldValue of inputFieldValues">
+                    <label for="">Name of Male siblings</label>
+                    <input class="form-control" type="text" [(ngModel)]="fieldValue.value" />
+                  </div>
+                  <div *ngFor="let fieldValue of inputFieldValue">
+                    <label for="">Name of Female siblings</label>
+                    <input class="form-control" type="text" [(ngModel)]="fieldValue.value" />
+                  </div>
+                  </ng-container>
+              </div>
+            </div>
+           </div>
+            <button class="btn btn-light">Cancel</button>
+            <button class="btn btn-dark">Save</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
   
