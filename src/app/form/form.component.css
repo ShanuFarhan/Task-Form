@@ -8,4 +8,23 @@
 .form{
     background-color: whitesmoke;
     border-radius: 10px;
+    margin-top: 20px;
+}
+.fieldbtn{
+    display: flex;
+    gap: 2px;
+}
+.errordiv{
+    position: absolute;
+}
+.formdiv{
+    margin-top: 20px;
+}
+.inputbtn{
+    margin-top: 30px;
+}
+.formdiv input{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }

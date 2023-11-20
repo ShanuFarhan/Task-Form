@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
       <div class="col-md-4 fields">
-        <div class="form-check" *ngFor="let field of fields">
+        <div  *ngFor="let field of fields">
           <input
             class="form-check-input"
             type="checkbox"
@@ -10,7 +10,8 @@
             (change)="updateSelectedFields()"
             [disabled]="field.fixed"
           />
-          <label class="form-check-label" for="{{ field.id }}">{{ field.name }}</label>
+          <label class="form-check-label" for="{{ field.id }}" 
+          >{{ field.name }}</label>
           <div *ngIf="field.name === 'Gender' && field.selected">
             <label>Choose Gender:</label>
             <div class="form-check" *ngFor="let option of Gender">
@@ -49,64 +50,101 @@
               <label class="form-check-label" for="{{field.id }}">{{option.name}}</label>
             </div>
           </div>
-          <div class="form-check form-check-inline">
-            <input
+          <div class="form-check-inline">
+            <input 
               class="form-check-input"
               type="radio"
-              id="{{field.id }}"
+              id="{{field.id }}Mandatory"
               name="{{field.id }}"
               [(ngModel)]="field.mandatory"
-              value="true"
+              [value]="true"
+              [disabled]="!field.selected"
             />
-            <label class="form-check-label" for="{{field.id }}">Mandatory</label>
+            <label class="form-check-label" for="{{field.id}}Mandatory">Mandatory</label>
           </div>
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
               type="radio"
-              id="{{field.id }}"
+              id="{{field.id}}NotMandatory"
               name="{{field.id}}"
               [(ngModel)]="field.mandatory"
-              value="false"
+              [value]="false"
+              [disabled]="!field.selected"
               />
-            <label class="form-check-label" for="{{field.id }}">Not Mandatory</label>
+            <label class="form-check-label" for="{{field.id}}NotMandatory">Not Mandatory</label>
           </div>
          </div>
-         <button class="btn btn-light">Cancel</button>
-         <button class="btn btn-dark">Reset</button>
-
+         <div class="fieldbtn">
+         <button (click)="cancelbtn()" class="btn btn-light">Cancel</button>
+         <button (click)="resetbtn()" class="btn btn-dark">Reset</button>
+         <button (click)="savebtn()" class="btn btn-dark">Save</button>
+        </div>
       </div>
       <div class="col-md-8 form">
         <div class="selected-fields">
-          <div *ngFor="let field of selectedFields">
+          <form  [formGroup]="dynamicForm" (ngSubmit)="saveform()">
+          <div class="formfields formdiv" *ngFor="let field of selectedFields">
             <div class="row">
-                <div class="col-md-6">
-                <label>{{ field.name }}</label>
+                <div class="col-md-4">
+                <label>{{ field.name }}
+                  <span *ngIf="field.mandatory" class="text-danger">*</span>
+                </label>
                 <ng-container *ngIf="field.name !== 'Gender' && field.name !== 'Address' && field.name !== 'Siblings'">
-                    <input class="form-control" [(ngModel)]="field.value" [type]="field.type" />
+                    <input  [formControlName]="field.name" class="form-control " [(ngModel)]="field.value" [type]="field.type" [required]="field.mandatory"
+             />
+                    <div *ngIf="dynamicForm.get(field.name)?.touched && dynamicForm.get(field.name)?.invalid &&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
                   </ng-container>
+                  <ng-container>
+                    <div *ngIf="field.name==='AadharNo'">
+                    <div *ngIf="!field.mandatory&& formSubmitted && dynamicForm.get('AadharNo')?.hasError('invalidAadhaarNumber')" class="text-danger">
+                      Invalid Aadhaar number
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-container>
+                  <div *ngIf="field.name==='Email'">
+                    <div *ngIf="!field.mandatory&&formSubmitted && dynamicForm.get('Email')?.hasError('email')" class="text-danger">
+                      Invalid email
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-container>
+                  <div *ngIf="field.name==='PANNo'">
+                    <div *ngIf="!field.mandatory&&formSubmitted&& dynamicForm.get('PANNo')?.hasError('invalidPanNumber')" class="text-danger">
+                      Invalid PAN number
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-container>
+                  <div *ngIf="field.name==='DrivingLicense'">
+                    <div *ngIf="!field.mandatory&&formSubmitted && dynamicForm.get('DrivingLicense')?.hasError('invalidDrivingLicense')" class="text-danger">
+                      Invalid Driving License 
+                    </div>
+                  </div>
+                </ng-container>
                   <ng-container *ngIf="field.name === 'Gender'">
-                    <select class="form-control custom-select" id="inputGroupSelect01">
+                    <select class="form-control custom-select" id="inputGroupSelect01" [required]="field.mandatory">
                         <option value="" selected>Choose</option>
-                        <option *ngFor="let gender of genderSelected" [value]="gender">{{gender.name}}</option>
+                        <option  *ngFor="let gender of genderSelected" [value]="field.value">{{gender.name}}</option> 
                     </select>
                   </ng-container>
                   <ng-container *ngIf="field.name === 'Address'">
                     <div *ngFor="let address of addressSelected">
                     <label>{{address.name}} Address</label>
-                    <input [id]="address.id"  class="form-control" [(ngModel)]="address.value" [type]="field.type" />
+                    <input [id]="address.id"  class="form-control" [required]="field.mandatory" [(ngModel)]="address.value" [type]="field.type" />
                     </div>
                   </ng-container>
                   <ng-container *ngIf="field.name === 'Siblings'">
                     <div *ngFor="let sibling of siblingSelected">
                     <label>Enter number of {{sibling.name}} Siblings</label>
-                    <input *ngIf="sibling.name==='Male'" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="Malecount" />
-                    <input *ngIf="sibling.name==='Female'" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="FemaleCount" />
+                    <input *ngIf="sibling.name==='Male'" formControlName="Siblings" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="Malecount" />
+                    <input *ngIf="sibling.name==='Female'" formControlName="Siblings" [id]="siblingSelected.id" (change)="getCount()" type="number"  class="form-control" [(ngModel)]="FemaleCount" />
                     <!-- <button  (click)="generateInputFields()">Generate Fields</button> -->
                   </div>
                   <div *ngFor="let fieldValue of inputFieldValues">
                     <label for="">Name of Male siblings</label>
-                    <input class="form-control" type="text" [(ngModel)]="fieldValue.value" />
+                    <input  class="form-control" type="text" [(ngModel)]="fieldValue.value" />
                   </div>
                   <div *ngFor="let fieldValue of inputFieldValue">
                     <label for="">Name of Female siblings</label>
@@ -116,8 +154,11 @@
               </div>
             </div>
            </div>
+           <div class="inputbtn">
             <button class="btn btn-light">Cancel</button>
-            <button class="btn btn-dark">Save</button>
+            <button type="submit" class="btn btn-dark">Save</button>
+          </div>
+        </form>
             </div>
           </div>
         </div>
