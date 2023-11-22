@@ -18,30 +18,29 @@ export class FormComponent implements OnInit {
     { id: 1, name: 'Firstname', selected: true,type:'text',fixed: true,mandatory:true ,value:''},
     { id: 2, name: 'Lastname', selected: true,type:'text',fixed: false ,mandatory:false,value:''},
     { id: 3, name: 'Age', selected: false,type:'number' ,fixed: false,mandatory:false,value:''},
-    { id: 4, name: 'Gender', selected: false,type:'text' ,fixed: false,mandatory:false,
-    genderOptions:[{name:'Male',value:''},{name:'Female',value:''}]},
+    { id: 4, name: 'Gender', selected: false,type:'text' ,fixed: false,mandatory:false,value:'Male'},
     { id: 5, name: 'Contactno', selected: true,type:'number',fixed: true ,mandatory:true,value:''},
     { id: 6, name: 'Email', selected: false ,type:'email',fixed: false,mandatory:false,value:''},
     { id: 7, name: 'PANNo', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
     { id: 8, name: 'VoterID', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
     { id: 9, name: 'AadharNo', selected: false,type:'number',fixed: false ,mandatory:false,value:''},
     { id: 10, name: 'DrivingLicense', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
-    { id: 11, name: 'Father Name', selected: false,type:'text',fixed: false ,mandatory:false,value:''},
-    { id: 12, name: 'Mother Name', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
+    { id: 11, name: 'FatherName', selected: false,type:'text',fixed: false ,mandatory:false,value:''},
+    { id: 12, name: 'MotherName', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
     { id: 13, name: 'Siblings', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
     { id: 14, name: 'Income', selected: false,type:'number',fixed: false ,mandatory:false,value:''},
     { id: 15, name: 'Address', selected: false,type:'text' ,fixed: false,mandatory:false,value:''},
-    { id: 16, name: 'Date of birth', selected: false,type:'date' ,fixed: false,mandatory:false},
+    { id: 16, name: 'Dateofbirth', selected: false,type:'date' ,fixed: false,mandatory:false,value:''},
   ];
   Siblings=[
     {id:1,name:"Male",selected:false},
     {id:2,name:"Female",selected:false},
   ]
   Gender=[
-    {id:1,name:"Male",selected:false},
-    {id:2,name:"Female",selected:false},
-    {id:3,name:"Transgender",selected:false},
-    {id:4,name:"Prefer Not to respond",selected:false},
+    {id:1,name:"Male",selected:false,value:'Male'},
+    {id:2,name:"Female",selected:false,value:'Female'},
+    {id:3,name:"Transgender",selected:false,value:''},
+    {id:4,name:"Prefer Not to respond",selected:false,value:''},
   ];
   Address=[
     {id:1,name:"Home",selected:false,value:''},
@@ -62,18 +61,24 @@ export class FormComponent implements OnInit {
   constructor(private fb: FormBuilder,private http:HttpClient,private formDataService:FormDataService,private router: Router) {
   
   }
+  isNavbarOpen=true
   ngOnInit() {
     this.dynamicForm = this.fb.group({
       Firstname: ['', Validators.required],
       Age:['',Validators.required],
+      Gender:['',Validators.required],
       Lastname:['',Validators.required],
-      Contactno:['',Validators.required],
+      Contactno:['',[Validators.required,Validators.maxLength(10), Validators.minLength(10)]],
       Siblings:['',Validators.required],
       AadharNo:['',[Validators.required,aadhaarNumberValidator()]],
       Email:['',[Validators.required,Validators.email]],
       PANNo:['',[Validators.required,panNumberValidator()]],
       DrivingLicense:['',[Validators.required,drivingLicenseValidator()]],
-      VoterID:['',[Validators.required,voterIdValidator()]]
+      VoterID:['',[Validators.required,voterIdValidator()]],
+      FatherName:['',Validators.required],
+      MotherName:['',Validators.required],
+      Income:['',Validators.required],
+      Dateofbirth:['',Validators.required]
 
     });
     const storedSelectedFields = JSON.parse(localStorage.getItem('selectedFields') || '[]');
@@ -129,7 +134,7 @@ export class FormComponent implements OnInit {
     // );
     this.fields.forEach((field)=>{
       field.selected=field.fixed
-      field.value = undefined;
+      field.value = '';
       field.mandatory=field.fixed
     })
     this.lastSavedFields = [...this.fields.filter((field) => field.selected )];
@@ -140,15 +145,19 @@ export class FormComponent implements OnInit {
     const selectedFields = this.fields.filter(field => field.selected);
     localStorage.setItem('selectedFields', JSON.stringify(selectedFields));
     this.lastSavedFields = [...selectedFields];
-    this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields', selectedFields)
-      .subscribe(
-        (response) => {
-          console.log('Changes saved successfully:', response);
-        },
-        (error) => {
-          console.error('Error saving changes:', error);
-        }
-      );
+    this.formDataService.saveFields(selectedFields).subscribe(data=>{
+        console.log("Changes saved",data);
+    })
+    // this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields', selectedFields)
+    //   .subscribe(
+    //     (response) => {
+    //       console.log('Changes saved successfully:', response);
+    //     },
+    //     (error) => {
+    //       console.error('Error saving changes:', error);
+    //     }
+    //   );
+    this.formDataService.getFields()
   }
   cancelbtn(){
     
@@ -158,32 +167,27 @@ export class FormComponent implements OnInit {
   
     this.updateSelectedFields();
   }
-  handleLabelClick(event: Event): void {
-    event.stopPropagation();
-  }
+  
   saveform(){
     this.submit=true
     this.markAllFieldsAsTouched();
     this.formSubmitted = true;
-    const formData = this.fields
-    .filter(field => field.selected && 'value' in field) 
-    .map(field => {
-      return {
-        name:field.name,
-        value: field.value !== undefined ? field.value : ''
-      };
-    });
+    const formData = this.dynamicForm.value
+    
     const drivingLicense=this.dynamicForm.get('DrivingLicense')
     const panControl=this.dynamicForm.get('PANNo')
     const aadhaarNumberControl = this.dynamicForm.get('AadharNo');
     const emailControl = this.dynamicForm.get('Email');
-    if(this.areMandatoryFieldsFilled() ){
+    const contact=this.dynamicForm.get('Contactno')
+    if(this.areMandatoryFieldsFilled() && contact&&contact.valid ){
     this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form', formData)
     .subscribe(
       (response) => {
         console.log('Form data saved successfully:', response);
         this.fields.forEach((field) => {
-          this.dynamicForm.reset()  
+          this.dynamicForm.reset()
+          this.router.navigate(['/form-display']);
+
         });
         this.formSubmitted = false;
         
@@ -194,12 +198,10 @@ export class FormComponent implements OnInit {
     );
     }
   
-    this.formDataService.updateFormData(formData);
-    this.router.navigate(['/form-display']);
+    this.formDataService.setFormData(formData);
 
   }
   markAllFieldsAsTouched() {
-    // Mark all fields as touched to trigger error messages
     Object.keys(this.dynamicForm.controls).forEach(field => {
       const control = this.dynamicForm.get(field);
       control?.markAsTouched({ onlySelf: true });

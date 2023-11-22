@@ -3,3 +3,12 @@ nav{
     justify-content: center;
     align-items: center;
 }
+.app-container {
+    display: flex;
+  }
+  
+  .main-content {
+    margin-left: 200px;
+    padding: 20px;
+  }
+  

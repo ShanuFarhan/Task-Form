@@ -1,7 +1,11 @@
+
+
+
+
 <div class="container-fluid">
     <div class="row">
-      <div class="col-md-4 fields">
-        <div  *ngFor="let field of fields">
+      <div class="col-md-5 fields">
+        <div class="fields" *ngFor="let field of fields">
           <input
             class="form-check-input"
             type="checkbox"
@@ -81,7 +85,7 @@
          <button (click)="savebtn()" class="btn btn-dark">Save</button>
         </div>
       </div>
-      <div class="col-md-8 form">
+      <div class="col-md-7 form">
         <div class="selected-fields">
           <form  [formGroup]="dynamicForm" (ngSubmit)="saveform()">
           <div class="formfields formdiv" *ngFor="let field of selectedFields">
@@ -93,32 +97,39 @@
                 <ng-container *ngIf="field.name !== 'Gender' && field.name !== 'Address' && field.name !== 'Siblings'">
                     <input  [formControlName]="field.name" class="form-control " [(ngModel)]="field.value" [type]="field.type" [required]="field.mandatory"
              />
-                    <div *ngIf="dynamicForm.get(field.name)?.touched && dynamicForm.get(field.name)?.invalid &&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
+                    <div *ngIf="dynamicForm.get(field.name)?.touched && dynamicForm.get(field.name)?.invalid && field.mandatory" class="text-danger errordiv">This field is mandatory</div>
                   </ng-container>
                   <ng-container>
                     <div *ngIf="field.name==='AadharNo'">
-                    <div *ngIf="!field.mandatory&& formSubmitted && dynamicForm.get('AadharNo')?.hasError('invalidAadhaarNumber')" class="text-danger">
+                    <div *ngIf="dynamicForm.get(field.name)?.dirty&&!field.mandatory&& dynamicForm.get('AadharNo')?.hasError('invalidAadhaarNumber')" class="text-danger errordiv">
                       Invalid Aadhaar number
                     </div>
                   </div>
                 </ng-container>
                 <ng-container>
                   <div *ngIf="field.name==='Email'">
-                    <div *ngIf="!field.mandatory&&formSubmitted && dynamicForm.get('Email')?.hasError('email')" class="text-danger">
+                    <div *ngIf="dynamicForm.get(field.name)?.dirty&&!field.mandatory&& dynamicForm.get('Email')?.hasError('email')" class="text-danger errordiv">
                       Invalid email
                     </div>
                   </div>
                 </ng-container>
                 <ng-container>
                   <div *ngIf="field.name==='PANNo'">
-                    <div *ngIf="!field.mandatory&&formSubmitted&& dynamicForm.get('PANNo')?.hasError('invalidPanNumber')" class="text-danger">
+                    <div *ngIf="dynamicForm.get(field.name)?.dirty&&!field.mandatory&& dynamicForm.get('PANNo')?.hasError('invalidPanNumber')" class="text-danger errordiv">
                       Invalid PAN number
                     </div>
                   </div>
                 </ng-container>
+                <!-- <ng-container>
+                  <div *ngIf="field.name==='Contactno'">
+                    <div *ngIf="dynamicForm.get(field.name)?.touched&&!field.mandatory&& dynamicForm.get(field.name)?.invalid" class="text-danger errordiv">
+                      Invalid PAN
+                    </div>
+                  </div>
+                </ng-container> -->
                 <ng-container>
                   <div *ngIf="field.name==='DrivingLicense'">
-                    <div *ngIf="!field.mandatory&&formSubmitted && dynamicForm.get('DrivingLicense')?.hasError('invalidDrivingLicense')" class="text-danger">
+                    <div *ngIf="dynamicForm.get(field.name)?.dirty&& !field.mandatory&&formSubmitted && dynamicForm.get('DrivingLicense')?.hasError('invalidDrivingLicense')" class="text-danger errordiv">
                       Invalid Driving License 
                     </div>
                   </div>
@@ -126,14 +137,18 @@
                   <ng-container *ngIf="field.name === 'Gender'">
                     <select class="form-control custom-select" id="inputGroupSelect01" [required]="field.mandatory">
                         <option value="" selected>Choose</option>
-                        <option  *ngFor="let gender of genderSelected" [value]="field.value">{{gender.name}}</option> 
-                    </select>
+                        <option *ngFor="let gender of genderSelected" [formControlName]="gender.name" [(ngModel)]="gender.value">{{gender.name}}</option> 
+                      </select>
+                      <div *ngIf="formSubmitted&&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
+
                   </ng-container>
                   <ng-container *ngIf="field.name === 'Address'">
                     <div *ngFor="let address of addressSelected">
                     <label>{{address.name}} Address</label>
                     <input [id]="address.id"  class="form-control" [required]="field.mandatory" [(ngModel)]="address.value" [type]="field.type" />
-                    </div>
+                    <div *ngIf="formSubmitted&&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
+
+                  </div>
                   </ng-container>
                   <ng-container *ngIf="field.name === 'Siblings'">
                     <div *ngFor="let sibling of siblingSelected">
@@ -145,10 +160,14 @@
                   <div *ngFor="let fieldValue of inputFieldValues">
                     <label for="">Name of Male siblings</label>
                     <input  class="form-control" type="text" [(ngModel)]="fieldValue.value" />
+                    <div *ngIf="formSubmitted&&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
+
                   </div>
                   <div *ngFor="let fieldValue of inputFieldValue">
                     <label for="">Name of Female siblings</label>
                     <input class="form-control" type="text" [(ngModel)]="fieldValue.value" />
+                    <div *ngIf="formSubmitted&&field.mandatory" class="text-danger errordiv">This field is mandatory</div>
+
                   </div>
                   </ng-container>
               </div>
@@ -163,4 +182,5 @@
           </div>
         </div>
       </div>
+      
   
