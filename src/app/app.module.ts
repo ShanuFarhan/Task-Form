@@ -13,13 +13,23 @@ import { CommonModule } from '@angular/common';
 import { SidenavComponent } from './sidenav/sidenav.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { AgGridModule } from 'ag-grid-angular';
+import { DeleteButtonRendererComponent } from './delete-button-renderer/delete-button-renderer.component';
+import { DeletedUsersComponent } from './deleted-users/deleted-users.component';
+import { RestoreButtonRenderComponent } from './restore-button-render/restore-button-render.component';
+// import { ActiveDeletedComponent } from './active-deleted/active-deleted.component';
 @NgModule({
   declarations: [
     AppComponent,
     FormComponent,
     FormDisplayComponent,
-    SidenavComponent
+    SidenavComponent,
+    DeleteButtonRendererComponent,
+    DeletedUsersComponent,
+    RestoreButtonRenderComponent,
+    // ActiveDeletedComponent,
+    
   ],
+  
   imports: [
     BrowserModule,
     AppRoutingModule,

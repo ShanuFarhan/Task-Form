@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable,EventEmitter  } from '@angular/core';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -41,12 +41,60 @@ export class FormDataService {
   ]
 private formData:any[]=[]
 selectedFields:any[]=[]
-constructor(private http:HttpClient){}
+private deletedUserSubject = new EventEmitter<void>();
+private deletedUsers:any[]=[]
+
+constructor(private http:HttpClient){
+  const storedDeletedUsers = localStorage.getItem('deletedUsers');
+    if (storedDeletedUsers) {
+      this.deletedUsers = JSON.parse(storedDeletedUsers);
+    }
+}
 saveFormData(data: any): Observable<any> {
   return this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form', data);
 }
 saveFields(data:any):Observable<any>{
   return this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields',data)
+}
+deleteProduct(value:any):Observable<any> {
+  console.log(value.id);
+  const url=`https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form/${value.id}`
+  this.deletedUsers.push(value);
+  localStorage.setItem('deletedUsers', JSON.stringify(this.deletedUsers));
+  return this.http.delete(url).pipe(
+    tap(() => this.deletedUserSubject.emit())
+  );
+}
+getDeletedUser():any[] {
+  console.log(this.deletedUsers);
+  return this.deletedUsers;
+}
+restoreDeletedUser(user: any): Observable<any> {
+  const url = 'https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form';
+  const index = this.deletedUsers.findIndex((deletedUser) => deletedUser.id === user.id);
+  if (index !== -1) {
+    this.deletedUsers.splice(index, 1);
+  }
+  localStorage.setItem('deletedUsers', JSON.stringify(this.deletedUsers));
+
+  return this.http.post(url, user).pipe(
+    tap(() => this.deletedUserSubject.emit())
+  );
+}
+getFormDetails(id: number): Observable<any> {
+  console.log(id);
+  return this.http.get(`https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form/${id}`);
+}
+editUser(id:number,user: any): Observable<any> {
+  console.log(id);
+  
+  const url = `https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form/${id}`;
+
+  return this.http.put<any>(url,user);
+
+}
+onUserDeleted(): Observable<void> {
+  return this.deletedUserSubject.asObservable();
 }
 getFields():Observable<any>{
   return this.http.get<any>('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields')

@@ -1,0 +1,20 @@
+ 
+  <div class="sizeoptions">
+    <button class="btn btn-light" routerLink="active" (click)="viewActiveUsers()">Active Users</button>
+    <button  class="btn btn-light" routerLink="active" (click)="viewDeletedUsers()">Deleted Users</button>
+    <span>Show Entries </span>
+    <select class="form-select" aria-label="Default select example" (change)="onPageSizeChanged($event)">
+      <option *ngFor="let size of tableSizes">{{ size }}</option>
+    </select>
+  </div>
+<ag-grid-angular
+class="ag-theme-alpine"
+style="height: 500px;width:1100px; background-color: white;"
+[gridOptions]="gridOptions"
+[rowData]="deletedUsers"
+[columnDefs]="colDefs"
+></ag-grid-angular>
+<!-- <div *ngFor="let item of deletedUsers">
+    <li >{{item.Firstname}}</li>
+</div> -->
+

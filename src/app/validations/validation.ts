@@ -38,3 +38,12 @@ export function panNumberValidator(): ValidatorFn {
       return isValid ? null : { invalidVoterId: true };
     };
   }
+  export function contactNumberValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const contactNumber = control.value;
+        const isValid = /^[0-9]{10}$/.test(contactNumber);
+  
+      return isValid ? null : { invalidContactNumber: true };
+    };
+  }
+  

@@ -3,7 +3,9 @@ import { Component,OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { FormDataService } from '../form-data.service';
 import { Router } from '@angular/router';
-import { aadhaarNumberValidator, drivingLicenseValidator, panNumberValidator, voterIdValidator } from '../validations/validation';
+import { ActivatedRoute } from '@angular/router';
+
+import { aadhaarNumberValidator, contactNumberValidator, drivingLicenseValidator, panNumberValidator, voterIdValidator } from '../validations/validation';
 @Component({
   selector: 'app-form',
   templateUrl: './form.component.html',
@@ -15,7 +17,7 @@ export class FormComponent implements OnInit {
 
   
   fields = [
-    { id: 1, name: 'Firstname', selected: true,type:'text',fixed: true,mandatory:true ,value:''},
+    { id: 1, name: 'Firstname', selected: true,type:'text',fixed: true,mandatory:true,value:''},
     { id: 2, name: 'Lastname', selected: true,type:'text',fixed: false ,mandatory:false,value:''},
     { id: 3, name: 'Age', selected: false,type:'number' ,fixed: false,mandatory:false,value:''},
     { id: 4, name: 'Gender', selected: false,type:'text' ,fixed: false,mandatory:false,value:'Male'},
@@ -58,17 +60,42 @@ export class FormComponent implements OnInit {
   addressSelected:any=[];
   siblingSelected:any=[];
   lastSavedFields: any[]=[];
-  constructor(private fb: FormBuilder,private http:HttpClient,private formDataService:FormDataService,private router: Router) {
+  isEditing=false
+  user:any={}
+  constructor(private activatedRoute: ActivatedRoute,private fb: FormBuilder,private http:HttpClient,private formDataService:FormDataService,private router: Router) {
   
   }
   isNavbarOpen=true
   ngOnInit() {
+    this.activatedRoute.params.subscribe(params => {
+      const userId = +params['id'];
+      console.log(userId);
+      
+      if (!isNaN(userId)) {
+        this.isEditing = true;
+        this.formDataService.getFormDetails(userId).subscribe(res=>{
+          console.log(res);
+          
+          this.dynamicForm.patchValue(res);
+          
+        })
+        // this.formDataService.getFormData().subscribe(res=>{
+        //   const users={...res[userId]}
+        //   console.log(users);
+          
+        // })
+        // const users:any= this.formDataService.getFormData();
+        // this.user = { ...users[userId] };
+        // console.log(this.user);
+        
+      }
+    });
     this.dynamicForm = this.fb.group({
       Firstname: ['', Validators.required],
       Age:['',Validators.required],
       Gender:['',Validators.required],
       Lastname:['',Validators.required],
-      Contactno:['',[Validators.required,Validators.maxLength(10), Validators.minLength(10)]],
+      Contactno:['',[Validators.required,contactNumberValidator()]],
       Siblings:['',Validators.required],
       AadharNo:['',[Validators.required,aadhaarNumberValidator()]],
       Email:['',[Validators.required,Validators.email]],
@@ -148,15 +175,7 @@ export class FormComponent implements OnInit {
     this.formDataService.saveFields(selectedFields).subscribe(data=>{
         console.log("Changes saved",data);
     })
-    // this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields', selectedFields)
-    //   .subscribe(
-    //     (response) => {
-    //       console.log('Changes saved successfully:', response);
-    //     },
-    //     (error) => {
-    //       console.error('Error saving changes:', error);
-    //     }
-    //   );
+ 
     this.formDataService.getFields()
   }
   cancelbtn(){
@@ -173,13 +192,32 @@ export class FormComponent implements OnInit {
     this.markAllFieldsAsTouched();
     this.formSubmitted = true;
     const formData = this.dynamicForm.value
-    
+   
+    if(this.isEditing){   
+       const formId = +this.activatedRoute.snapshot.params['id'];
+    const updateddata=this.dynamicForm.value
+    this.formDataService.editUser(formId, updateddata).subscribe(res=>{
+      console.log("updated",res);
+      this.router.navigate(['/form-display']);
+    });  
+      // const userid = +this.activatedRoute.snapshot.params['id'];
+      // const data:any = this.formDataService.getFormDetails(userid);     
+      // data[userid] = this.user;
+      // console.log(this.user);
+      // this.formDataService.editUser(userid, data).subscribe(res=>{
+      //   console.log("updated",res);
+        
+      // });
+        
+      
+    }
+   else{
     const drivingLicense=this.dynamicForm.get('DrivingLicense')
     const panControl=this.dynamicForm.get('PANNo')
     const aadhaarNumberControl = this.dynamicForm.get('AadharNo');
     const emailControl = this.dynamicForm.get('Email');
     const contact=this.dynamicForm.get('Contactno')
-    if(this.areMandatoryFieldsFilled() && contact&&contact.valid ){
+    if(this.areMandatoryFieldsFilled()  ){
     this.http.post('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/form', formData)
     .subscribe(
       (response) => {
@@ -197,7 +235,7 @@ export class FormComponent implements OnInit {
       }
     );
     }
-  
+   }
     this.formDataService.setFormData(formData);
 
   }

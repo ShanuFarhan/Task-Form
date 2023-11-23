@@ -1,7 +1,4 @@
 
-
-
-
 <div class="container-fluid">
     <div class="row">
       <div class="col-md-5 fields">
@@ -95,10 +92,17 @@
                   <span *ngIf="field.mandatory" class="text-danger">*</span>
                 </label>
                 <ng-container *ngIf="field.name !== 'Gender' && field.name !== 'Address' && field.name !== 'Siblings'">
-                    <input  [formControlName]="field.name" class="form-control " [(ngModel)]="field.value" [type]="field.type" [required]="field.mandatory"
+                    <input  [formControlName]="field.name" [name]="field.name" class="form-control " [(ngModel)]="field.value" [type]="field.type" [required]="field.mandatory"
              />
                     <div *ngIf="dynamicForm.get(field.name)?.touched && dynamicForm.get(field.name)?.invalid && field.mandatory" class="text-danger errordiv">This field is mandatory</div>
                   </ng-container>
+                  <ng-container>
+                    <div *ngIf="field.name==='Contactno'">
+                    <div *ngIf="dynamicForm.get('Contactno')?.dirty  && dynamicForm.get('Contactno')?.hasError('invalidContactNumber')" class="text-danger errordiv">
+                      Invalid contact number
+                    </div>         
+                  </div>           
+                </ng-container>
                   <ng-container>
                     <div *ngIf="field.name==='AadharNo'">
                     <div *ngIf="dynamicForm.get(field.name)?.dirty&&!field.mandatory&& dynamicForm.get('AadharNo')?.hasError('invalidAadhaarNumber')" class="text-danger errordiv">
