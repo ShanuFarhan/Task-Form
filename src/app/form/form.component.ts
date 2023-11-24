@@ -35,8 +35,8 @@ export class FormComponent implements OnInit {
     { id: 16, name: 'Dateofbirth', selected: false,type:'date' ,fixed: false,mandatory:false,value:''},
   ];
   Siblings=[
-    {id:1,name:"Male",selected:false},
-    {id:2,name:"Female",selected:false},
+    {id:1,name:" Male",selected:false},
+    {id:2,name:" Female",selected:false},
   ]
   Gender=[
     {id:1,name:"Male",selected:false,value:'Male'},
@@ -45,9 +45,9 @@ export class FormComponent implements OnInit {
     {id:4,name:"Prefer Not to respond",selected:false,value:''},
   ];
   Address=[
-    {id:1,name:"Home",selected:false,value:''},
-    {id:2,name:"PG",selected:false,value:''},
-    {id:3,name:"Office",selected:false,value:''},
+    {id:1,name:"Home",selected:false,value:'',},
+    {id:2,name:"PG",selected:false,value:'',},
+    {id:3,name:"Office",selected:false,value:'',},
   ]
   // unitTrustsPnl: number
   submit=false
@@ -79,14 +79,7 @@ export class FormComponent implements OnInit {
           this.dynamicForm.patchValue(res);
           
         })
-        // this.formDataService.getFormData().subscribe(res=>{
-        //   const users={...res[userId]}
-        //   console.log(users);
-          
-        // })
-        // const users:any= this.formDataService.getFormData();
-        // this.user = { ...users[userId] };
-        // console.log(this.user);
+       
         
       }
     });
@@ -104,6 +97,7 @@ export class FormComponent implements OnInit {
       VoterID:['',[Validators.required,voterIdValidator()]],
       FatherName:['',Validators.required],
       MotherName:['',Validators.required],
+      Address:['',Validators.required],
       Income:['',Validators.required],
       Dateofbirth:['',Validators.required]
 
@@ -112,7 +106,6 @@ export class FormComponent implements OnInit {
     this.fields.forEach((field) => {
       field.selected = storedSelectedFields.some((selectedField:any) => selectedField.id === field.id);
     });
-    // const storedSelectedFields = JSON.parse(localStorage.getItem('selectedFields') || '[]');
     this.fields.forEach((field) => {
       
       if (field.fixed) {
@@ -137,28 +130,21 @@ export class FormComponent implements OnInit {
   }
   updateSelectedFields() {
     this.selectedFields = this.fields.filter((field) => field.selected);
-    // const selectedFieldIds = this.selectedFields.map((field:any) => field.id);
-    // localStorage.setItem('selectedFields', JSON.stringify(selectedFieldIds));
+    
   }
   updateGender(){
     this.genderSelected=this.Gender.filter((field:any)=>field.selected)
   }
   updateAddress(){
     this.addressSelected=this.Address.filter((field:any)=>field.selected)
+    // console.log(this.addressSelected);
+    
   }
   updateSiblings(){
     this.siblingSelected=this.Siblings.filter((field:any)=>field.selected)
   }
   resetbtn(){
-    // this.http.delete('https://653fb25a9e8bd3be29e1100e.mockapi.io/addtocart/fields')
-    // .subscribe(
-    //   (response) => {
-    //     console.log('Data deleted successfully:', response);
-    //   },  
-    //   (error) => {
-    //     console.error('Error deleting data:', error);
-    //   }
-    // );
+   
     this.fields.forEach((field)=>{
       field.selected=field.fixed
       field.value = '';
@@ -212,6 +198,8 @@ export class FormComponent implements OnInit {
       
     }
    else{
+    console.log(this.addressSelected);
+
     const drivingLicense=this.dynamicForm.get('DrivingLicense')
     const panControl=this.dynamicForm.get('PANNo')
     const aadhaarNumberControl = this.dynamicForm.get('AadharNo');
@@ -246,17 +234,49 @@ export class FormComponent implements OnInit {
     });
   }
   areMandatoryFieldsFilled(): boolean {
-    if(!this.formSubmitted){
-      return true
+    if (!this.formSubmitted) {
+      return true;
     }
-    const mandatoryFields = this.fields.filter(field => field.mandatory && field.selected && !field.value);
-  
+  debugger
+    const mandatoryFields = this.fields.filter(
+      (field) => field.mandatory && field.selected
+    );
+    
     for (const field of mandatoryFields) {
-      if (!field.value) {
-        return false; 
+      
+      if (field.name === 'Address' && this.addressSelected.length=== 0) {
+        
+        return true
+
+      }
+      
+    
+       else if (field.name === 'Gender' && this.genderSelected.length===0) {
+        return true
+      } else if (field.name === 'Siblings' && this.siblingSelected.length === 0) {
+        return true
+        
+      } else {
+        if (!field.value) {
+          return false;
+        }
       }
     }
   
-    return true; 
+    return true;
   }
+  areOptionsSelected(field: any): boolean {
+    if (field.name === 'Address') {
+      return this.addressSelected.some((option:any) => option.selected);
+    } else if (field.name === 'Gender') {
+      return this.genderSelected.some((option:any) => option.selected);
+    } else if (field.name === 'Siblings') {
+      return this.siblingSelected.some((option:any) => option.selected);
+    }else if (field.name === 'Firstname' || field.name === 'Contactno') {
+      return false;
+    }
+    else
+    return field.selected;
+  }
+  
 }

@@ -5,6 +5,12 @@
 .fields{
     margin-top: 20px;  
 }
+.address{
+  margin-top: 20px;
+}
+.sibling{
+  margin-top: 20px;
+}
 .form{
     background-color: whitesmoke;
     border-radius: 10px;
